@@ -1,0 +1,7 @@
+[build]
+functions = "functions"
+
+[dev]
+autoLaunch = false  # Évite l'ouverture automatique du navigateur
+functions = "functions"
+port = 8888
