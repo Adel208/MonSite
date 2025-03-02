@@ -1,3 +1,5 @@
+require("dotenv").config(); // Charge les variables d'environnement en local
+
 const nodemailer = require("nodemailer");
 
 exports.handler = async (event) => {
@@ -18,23 +20,35 @@ exports.handler = async (event) => {
             };
         }
 
+        // Vérification des variables d'environnement
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error("Erreur : Les variables d'environnement EMAIL_USER et EMAIL_PASS ne sont pas définies.");
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ success: false, message: "Erreur serveur. Variables d'environnement manquantes." }),
+            };
+        }
+
+        // Création du transporteur Nodemailer
         let transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 465,
             secure: true,
             auth: {
-                user: "virtuosagency@gmail.com", // Ton adresse Gmail d'envoi
-                pass: "lxrf sscx amqk rcif", // Remplace par ton mot de passe d'application Gmail
+                user: process.env.EMAIL_USER, // Adresse email sécurisée via les variables d'environnement
+                pass: process.env.EMAIL_PASS, // Mot de passe sécurisé via les variables d'environnement
             },
         });
 
+        // Configuration du mail
         let mailOptions = {
-            from: `"${name}" <${email}>`,
-            to: "virtuosagency@gmail.com", // Adresse où tu reçois les messages
+            from: `"${name}" <${email}>`, // Expéditeur
+            to: process.env.RECEIVER_EMAIL || process.env.EMAIL_USER, // Destinataire
             subject: subject,
             text: message,
         };
 
+        // Envoi de l'email
         await transporter.sendMail(mailOptions);
 
         return {
